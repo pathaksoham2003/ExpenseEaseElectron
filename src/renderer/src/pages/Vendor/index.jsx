@@ -129,6 +129,7 @@ const Vendor = () => {
           edit={edit}
           vendorToEdit={vendorToEdit}
           setVendorDetails={setVendorDetails}
+          fetchVendor={fetchVendor}
         />
       )}
     </div>

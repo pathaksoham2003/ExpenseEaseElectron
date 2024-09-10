@@ -49,7 +49,7 @@ const Company = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">
           {isEditing ? 'Edit Company Details' : 'Company Details'}
         </h2>
-        <div className="flex flex-col">
+        {/* <div className="flex flex-col">
           <label className="block text-sm font-medium text-gray-700 capitalize mb-2">Logo</label>
           {isEditing ? (
             <input
@@ -69,7 +69,7 @@ const Company = () => {
               No logo uploaded
             </p>
           )}
-        </div>
+        </div> */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div key={0} className="flex flex-col">
             <label className="block text-sm font-medium text-gray-700 capitalize mb-2">

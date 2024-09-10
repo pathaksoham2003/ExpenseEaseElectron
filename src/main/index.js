@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain,Notification } from 'electron'
-import { join } from 'path'
+import { app, shell, BrowserWindow, ipcMain, Notification } from 'electron'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import axios from 'axios'
+import fs from 'fs';
 
 let options = {
   silent: false,
@@ -67,33 +68,37 @@ function createWindow() {
   })
 
   ipcMain.on('print-content', (event, htmlContent) => {
+    // Read the CSS file content
     // Create a new hidden window to print custom HTML
     const printWindow = new BrowserWindow({
       show: false, // Keep the window hidden
       webPreferences: {
         nodeIntegration: true,
-        contextIsolation: false
-      }
-    })
-
+        contextIsolation: false,
+      },
+    });
+  
+    // Embed the CSS content into the HTML
+  
     // Load the passed HTML content
-    printWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(htmlContent)}`)
-
+    printWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(htmlContent)}`);
+  
     // Once the content is loaded, print it with preview
     printWindow.webContents.on('did-finish-load', () => {
       printWindow.webContents.print(
         {
           silent: false, // Show print preview
-          printBackground: true // Ensure backgrounds are printed as well
+          printBackground: true, // Ensure backgrounds are printed as well
         },
         (success, failureReason) => {
-          if (!success) console.log(failureReason)
-          console.log('Print Preview Initiated')
-          printWindow.close() // Close the hidden window after printing
+          if (!success) console.log(failureReason);
+          console.log('Print Preview Initiated');
+          printWindow.close(); // Close the hidden window after printing
         }
-      )
-    })
-  })
+      );
+    });
+  });
+  
 
   ipcMain.handle('getCompany', async () => {
     try {
@@ -177,6 +182,15 @@ function createWindow() {
     }
   })
 
+  ipcMain.handle('getBills', async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/chand/Bill/')
+      return response.data
+    } catch (error) {
+      console.error('Failed to fetch company data:', error)
+      return { error: 'Failed to fetch data' }
+    }
+  })
 
   // mainWindow.on('ready-to-show', () => {
   //   mainWindow.show()
@@ -218,7 +232,9 @@ app.whenReady().then(() => {
     count += 1
   })
 
-  ipcMain.on('notification',()=> new Notification({ title: "Hello", body: "woeooerigbehrdbgvehdrfbgvdsbj" }).show())
+  ipcMain.on('notification', () =>
+    new Notification({ title: 'Hello', body: 'woeooerigbehrdbgvehdrfbgvdsbj' }).show()
+  )
 
   createWindow()
 

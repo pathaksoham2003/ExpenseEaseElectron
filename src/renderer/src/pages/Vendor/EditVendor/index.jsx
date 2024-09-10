@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 
 const EditVendor = ({ setEdit, edit, vendorToEdit, setVendorDetails }) => {
   const [vendor, setVendor] = useState({
@@ -7,31 +7,34 @@ const EditVendor = ({ setEdit, edit, vendorToEdit, setVendorDetails }) => {
     domain: '',
     address: '',
     phone: '',
-    gst_no: '',
-  });
+    gst_no: ''
+  })
 
   useEffect(() => {
     if (vendorToEdit) {
-      setVendor(vendorToEdit);
+      setVendor(vendorToEdit)
     }
-  }, [vendorToEdit]);
+  }, [vendorToEdit])
 
   const handleClose = () => {
-    setEdit(false);
-  };
+    setEdit(false)
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setVendor({ ...vendor, [name]: value });
-  };
+    const { name, value } = e.target
+    setVendor({ ...vendor, [name]: value })
+  }
 
   const handleSubmit = () => {
-    setVendorDetails((prevDetails) =>
-      prevDetails.map((v) => (v.id === vendor.id ? vendor : v))
-    );
-    console.log('Updated vendor details:', vendor);
-    handleClose();
-  };
+    window.electron.ipcRenderer
+      .invoke('updateVendor', vendor)
+      .then(() => {
+        setVendorDetails((prevDetails) => prevDetails.map((v) => (v.id === vendor.id ? vendor : v)))
+        console.log('Updated vendor details:', vendor)
+      })
+      .catch((e) => console.log(e))
+    handleClose()
+  }
 
   return (
     <div
@@ -46,9 +49,7 @@ const EditVendor = ({ setEdit, edit, vendorToEdit, setVendorDetails }) => {
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-          <h3 className="text-xl font-semibold text-gray-900">
-            Edit Vendor
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-900">Edit Vendor</h3>
           <button
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
@@ -115,11 +116,12 @@ const EditVendor = ({ setEdit, edit, vendorToEdit, setVendorDetails }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-900">GST Number</label>
                 <input
+                  readOnly
                   type="text"
                   name="gst_no"
                   value={vendor.gst_no}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full px-3 py-2 border bg-gray-200 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <div>
@@ -170,7 +172,7 @@ const EditVendor = ({ setEdit, edit, vendorToEdit, setVendorDetails }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EditVendor;
+export default EditVendor

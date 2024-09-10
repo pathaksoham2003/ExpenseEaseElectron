@@ -1,20 +1,11 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-
-const Home = () => {
-  const handlePrint = () => {
-    window.electron.ipcRenderer.send('print')
-  }
-
-  const handleContent = () => {
-    const htmlContent = `
-     <!DOCTYPE html>
+export const buildPrint = () => {
+  return `
+    <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invoice</title>
-    <link rel="stylesheet" href="./print.css">
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -198,18 +189,5 @@ const Home = () => {
     </div>
   </body>
 </html>
-    `
-
-    window.electron.ipcRenderer.send('print-content', htmlContent)
-  }
-
-  return (
-    <div className="flex flex-1 w-full justify-between bg-background">
-      <h1 onClick={handlePrint}>Home</h1>
-      <h2 onClick={handleContent}>Content</h2>
-      <Link to="/">GO Back</Link>
-    </div>
-  )
+`
 }
-
-export default Home
