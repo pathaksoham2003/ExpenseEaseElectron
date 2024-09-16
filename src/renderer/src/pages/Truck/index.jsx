@@ -63,7 +63,7 @@ const Truck = () => {
           </div>
           <div
             onClick={() => setCreate(true)}
-            className="m-5 mr-10 bg-accent px-5 py-2 rounded-xl text-white font-bold hover:bg-cyan-500 transition-colors"
+            className="m-3 mr-10 bg-accent px-5 py-2 rounded-xl text-white font-bold hover:bg-cyan-500 transition-colors"
           >
             Add a new truck
           </div>

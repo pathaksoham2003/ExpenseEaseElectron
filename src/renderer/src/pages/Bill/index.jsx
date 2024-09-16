@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 // import CreateBill from './CreateBill';  // Modal component for creating a new bill
 // import EditBill from './EditBill';      // Modal component for editing an existing bill
 import ViewBill from './ViewBill'
+import CreateBill from './CreateBill'
 
 const Bill = () => {
   const [billDetails, setBillDetails] = useState([])
@@ -10,6 +11,7 @@ const Bill = () => {
   const [edit, setEdit] = useState(false)
   const [billToEdit, setBillToEdit] = useState(null)
   const [view, setView] = useState(false)
+  const [viewBill, setBill] = useState(null)
 
   const fetchBills = () => {
     // Fetch bills from backend using Electron or API
@@ -34,23 +36,29 @@ const Bill = () => {
     setBillDetails(billDetails.filter((bill) => bill.id !== id))
   }
 
+  const handleBillView = (item) => {
+    setBill(item)
+  }
+
   return (
     <div className="flex flex-1 justify-center relative">
       <div className="w-full p-10">
         <div className="flex justify-between">
           <div>
-            <h2 className="text-sm font-bold text-subheading">Billing</h2>
+            <h2 className="text-sm font-bold text-subheading">
+              Billing {view ? '   >    Create Bill' : ''}
+            </h2>
             <h2 className="text-3xl font-bold">Billing Section</h2>
           </div>
           <button
-            onClick={() => setView(true)}
-            className="m-5 mr-10 bg-accent px-5 py-2 rounded-xl text-white font-bold hover:bg-cyan-500 transition-colors"
+            onClick={() => setView((prev) => !prev)}
+            className="m-3 mr-10 bg-accent px-5 py-2 rounded-xl text-white font-bold hover:bg-cyan-500 transition-colors"
           >
             Add a new Bill
           </button>
         </div>
 
-        <div className="relative rounded-2xl overflow-x-auto mt-5">
+        <div className={`relative rounded-2xl overflow-x-auto mt-5 ${view ? 'hidden' : 'block'}`}>
           <h2 className="w-full bg-white p-5 text-xl font-bold">Bill Details</h2>
           <table className="w-full text-sm text-left rtl:text-right text-gray-500">
             <thead className="text-subheading bg-white border-b">
@@ -87,15 +95,19 @@ const Bill = () => {
             </thead>
             <tbody>
               {billDetails.map((item) => (
-                <tr key={item.id} className="bg-white text-large">
+                <tr
+                  key={item.id}
+                  onClick={() => handleBillView(item)}
+                  className="bg-white hover:bg-slate-50 text-large"
+                >
                   <th scope="row" className="pl-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     {item.id}
                   </th>
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {item.date}
+                    {item.date.split("-").reverse().join("-")}
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {item.name}
+                    {item?.ven_id?.name}
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     {item.from_add}
@@ -104,7 +116,7 @@ const Bill = () => {
                     {item.to_add}
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {item.vehicle_number} {/* Displaying Vehicle Number */}
+                    {item.veh_id ? item.veh_id.number : 'Vehicle was deleted'}
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     ₹{item.total_amt}
@@ -131,8 +143,9 @@ const Bill = () => {
             </tbody>
           </table>
         </div>
+        <CreateBill view={view}/>
       </div>
-      {view && <ViewBill view={view} setView={setView} />}
+      {viewBill && <ViewBill view={viewBill} setView={setBill} />}
       {/* {create && <CreateBill fetchBills={fetchBills} setCreate={setCreate} />}
       {edit && (
         <EditBill
@@ -143,6 +156,7 @@ const Bill = () => {
           fetchBills={fetchBills}
         />
       )} */}
+     
     </div>
   )
 }

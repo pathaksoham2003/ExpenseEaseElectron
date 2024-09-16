@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import CreateBill from '../Bill/CreateBill'
 
 const Home = () => {
   const handlePrint = () => {

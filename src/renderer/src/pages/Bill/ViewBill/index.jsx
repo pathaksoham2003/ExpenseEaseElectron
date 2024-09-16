@@ -2,11 +2,33 @@ import React from 'react'
 import './print.css'
 import ChhatrapatiShivajiMaharaj from '../../../assets/ChhatrapatiShivajiMaharaj.webp?react'
 import { printCssString } from './stringcss'
+import { ToWords } from 'to-words'
 
 const ViewBill = ({ view, setView }) => {
+  const toWords = new ToWords({
+    localeCode: 'en-IN',
+    converterOptions: {
+      currency: true,
+      ignoreDecimal: false,
+      ignoreZeroCurrency: false,
+      doNotAddOnly: false,
+      currencyOptions: {
+        // can be used to override defaults for the selected locale
+        name: 'Rupee',
+        plural: 'Rupees',
+        symbol: '₹',
+        fractionalUnit: {
+          name: 'Paisa',
+          plural: 'Paise',
+          symbol: ''
+        }
+      }
+    }
+  })
   const handleClose = () => {
-    setView(false)
+    setView(null)
   }
+  console.log(view)
 
   const handlePrint = () => {
     // Select the container content
@@ -58,15 +80,21 @@ const ViewBill = ({ view, setView }) => {
         className="relative p-4 w-full max-w-5xl max-h-full bg-white rounded-lg shadow transform transition-opacity duration-300 ease-out"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
-        <div className="w-full h-8">
+        <div className="w-full flex justify-end">
           <button
             onClick={handlePrint}
-            className="bg-green-500 text-black rounded-lg py-2 px-4 hover:bg-green-400 transition-colors duration-300"
+            className="bg-green-500 font-semibold text-black mx-2 rounded-lg py-2 px-4 hover:bg-green-400 transition-colors duration-300"
+          >
+            Get pdf
+          </button>
+          <button
+            onClick={handlePrint}
+            className="bg-green-500 font-semibold text-black rounded-lg py-2 px-4 hover:bg-green-400 transition-colors duration-300"
           >
             Print
           </button>
         </div>
-        <div className="w-full overflow-y-scroll border mt-5 h-[700px] p-3">
+        <div className="w-full overflow-y-scroll border mt-5 h-[600px] p-3">
           <div className="container">
             <div className="header">
               <div className="company-info">
@@ -78,13 +106,10 @@ const ViewBill = ({ view, setView }) => {
                 </div>
                 <div className="bill-to">
                   <h2>Bill To:</h2>
-                  <span>Om Logistics Ltd.</span>
-                  <span>
-                    Gut No. 111, Near Rajmata Hotel, Karodi, Mumbai Highway, Chhatrapati Sambhaji
-                    Nagar, Maharashtra - 431136
-                  </span>
-                  <span>Email: chandrabhagatransport21@gmail.com</span>
-                  <span>GST No: 27AAAC04716C1ZT</span>
+                  <span>{view.ven_id.name}</span>
+                  <span>{view.ven_id.address}</span>
+                  <span>Email: {view.ven_id.email}</span>
+                  <span>GST No: {view.ven_id.gst_no}</span>
                 </div>
               </div>
               <div className="invoice-details">
@@ -93,8 +118,8 @@ const ViewBill = ({ view, setView }) => {
                   alt="Shivaji Maharaj Icon"
                   className="invoice-img"
                 />
-                <p>Invoice No: _______</p>
-                <p>Date: _______</p>
+                <p>Invoice No: {view.id}</p>
+                <p>Date: {view.date.split('-').reverse().join('-')}</p>
               </div>
             </div>
 
@@ -102,14 +127,15 @@ const ViewBill = ({ view, setView }) => {
             <div className="transportation-details">
               <div className="from-to">
                 <span>
-                  <strong>From:</strong> Cidco Bus Stand Near Siddharth Garden
+                  <strong>From:</strong> {view.from_add}
                 </span>
                 <span>
-                  <strong>To:</strong> Western Bridge, Bindu Saran, Banglore
+                  <strong>To:</strong> {view.to_add}
                 </span>
               </div>
               <span>
-                <strong>Vehicle No:</strong> MH 20 GE 2546
+                <strong>Vehicle No:</strong>
+                {view.veh_id == null ? 'Vehicle was deleted' : view.veh_id.number}
               </span>
             </div>
 
@@ -117,53 +143,64 @@ const ViewBill = ({ view, setView }) => {
               <table className="invoice-table">
                 <thead>
                   <tr>
-                    <th>S.No</th>
+                    <th className="sr">Sr.</th>
                     <th>Item Name</th>
-                    <th>HSN/SAC</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Price/Unit</th>
-                    <th>Taxable Amount</th>
-                    <th>CGST 6%</th>
-                    <th>SGST 6%</th>
-                    <th>Amount</th>
+                    <th className="hsn">HSN SAC</th>
+                    <th className="qty">Qty.</th>
+                    <th className="unit">Unit</th>
+                    <th className="ppu">Price/Unit</th>
+                    <th className="tt">Taxable Amount</th>
+                    <th className="cgst">CGST 6%</th>
+                    <th className="sgst">SGST 6%</th>
+                    <th className="amount">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Example Item Description</td>
-                    <td>12500</td>
-                    <td>1</td>
-                    <td>5</td>
-                    <td>1200</td>
-                    <td>1526000</td>
-                    <td>15600</td>
-                    <td>15264</td>
-                    <td>1526300</td>
-                  </tr>
+                  {view.items.map((item, index) => (
+                    <tr>
+                      <td className="sr">{index + 1}</td>
+                      <td>{item.name}</td>
+                      <td className="hsn">{item.hsn_sac}</td>
+                      <td className="qty">{item.quantity}</td>
+                      <td className="unit">{item.unit}</td>
+                      <td className="ppu">{item.price_per_unit}</td>
+                      <td className="tt">{item.taxable_amt}</td>
+                      <td className="cgst">{item.cgst}</td>
+                      <td className="sgst">{item.sgst}</td>
+                      <td className="amount">
+                        ₹
+                        {parseFloat(item.taxable_amt) +
+                          parseFloat(item.cgst) +
+                          parseFloat(item.sgst)}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-
             <div className="amount-section">
               <div className="sub-total">
                 <span>
-                  <strong>Sub Total: </strong>_____________
-                </span>
-                <span>
-                  <strong>Round Off: </strong>_____________
+                  <strong>Amount in words: </strong>
+                  {toWords.convert(view.total_amt)}
                 </span>
               </div>
               <div className="total">
                 <span>
-                  <strong>Total: </strong>_____________
+                  <strong>Total: </strong>₹{view.total_amt}
                 </span>
                 <span>
-                  <strong>Recieved: </strong>_____________
+                  <strong>Round Off: </strong>
+                  {view.round_amt}
+                </span>
+              </div>
+              <div className="total">
+                <span>
+                  <strong>Recieved: </strong>₹
+                  {parseFloat(view.total_amt) - parseFloat(view.pending)}
                 </span>
                 <span>
-                  <strong>Balance: </strong>_____________
+                  <strong>Balance: </strong>₹{parseFloat(view.pending)}
                 </span>
               </div>
             </div>
